@@ -60,7 +60,7 @@ def guardar_en_nube(nombre_pestana, lista_datos):
     hoja = conectar_sheets().worksheet(nombre_pestana)
     hoja.clear()
     if lista_datos:
-    encabezados = list(lista_datos[0].keys())
+      encabezados = list(lista_datos[0].keys())
       filas = [encabezados] + [
           [
               json.dumps(v, ensure_ascii=False)
@@ -156,69 +156,59 @@ recetas_default = [
 ]
 
 def cargar_insumos():
-    if os.path.exists(ARCHIVO_INSUMOS):
-        try:
-            with open(ARCHIVO_INSUMOS, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return insumos_default
-    else:
-        guardar_insumos(insumos_default)
-        return insumos_default
+  datos = cargar_desde_nube("insumos")
+  if datos:
+    return datos
+  guardar_insumos(insumos_default)
+  return insumos_default
+
 
 def guardar_insumos(insumos):
-    with open(ARCHIVO_INSUMOS, "w", encoding="utf-8") as f:
-        json.dump(insumos, f, indent=2, ensure_ascii=False)
+  guardar_en_nube("insumos", insumos)
+
 
 def cargar_recetas():
-    if os.path.exists(ARCHIVO_RECETAS):
-        try:
-            with open(ARCHIVO_RECETAS, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return recetas_default
-    else:
-        guardar_recetas(recetas_default)
-        return recetas_default
+  datos = cargar_desde_nube("recetas")
+  if datos:
+    return datos
+  guardar_recetas(recetas_default)
+  return recetas_default
+
 
 def guardar_recetas(recetas):
-    with open(ARCHIVO_RECETAS, "w", encoding="utf-8") as f:
-        json.dump(recetas, f, indent=2, ensure_ascii=False)
+  guardar_en_nube("recetas", recetas)
+
 
 def cargar_catalogo():
-    if os.path.exists(ARCHIVO_CATALOGO):
-        try:
-            with open(ARCHIVO_CATALOGO, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return []
+  if os.path.exists(ARCHIVO_CATALOGO):
+    try:
+      with open(ARCHIVO_CATALOGO, "r", encoding="utf-8") as f:
+        return json.load(f)
+    except Exception:
+      return []
+  return []
+
 
 def guardar_catalogo(catalogo):
-    with open(ARCHIVO_CATALOGO, "w", encoding="utf-8") as f:
-        json.dump(catalogo, f, indent=2, ensure_ascii=False)
+  with open(ARCHIVO_CATALOGO, "w", encoding="utf-8") as f:
+    json.dump(catalogo, f, indent=2, ensure_ascii=False)
+
 
 def guardar_pedido_en_disco(nuevo_pedido):
-    pedidos_existentes = consultar_historial()
-    pedidos_existentes.append(nuevo_pedido)
-    with open(ARCHIVO_PEDIDOS, "w", encoding="utf-8") as f:
-        json.dump(pedidos_existentes, f, indent=2, ensure_ascii=False)
+  pedidos_existentes = consultar_historial()
+  pedidos_existentes.append(nuevo_pedido)
+  guardar_en_nube("pedidos", pedidos_existentes)
+
 
 def consultar_historial():
-    if os.path.exists(ARCHIVO_PEDIDOS):
-        try:
-            with open(ARCHIVO_PEDIDOS, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return []
+  return cargar_desde_nube("pedidos")
+
 
 def eliminar_pedido_por_indice(indice_real):
-    pedidos_existentes = consultar_historial()
-    if 0 <= indice_real < len(pedidos_existentes):
-        pedidos_existentes.pop(indice_real)
-        with open(ARCHIVO_PEDIDOS, "w", encoding="utf-8") as f:
-            json.dump(pedidos_existentes, f, indent=2, ensure_ascii=False)
+  pedidos_existentes = consultar_historial()
+  if 0 <= indice_real < len(pedidos_existentes):
+    pedidos_existentes.pop(indice_real)
+    guardar_en_nube("pedidos", pedidos_existentes)
 
 def agendar_en_google_calendar(cliente, telefono, resumen, receta, precio_final, fecha_entrega, hora_entrega):
     if not os.path.exists(ARCHIVO_CREDENCIALES_CALENDAR):
