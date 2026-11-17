@@ -39,11 +39,18 @@ def conectar_sheets():
       "https://docs.google.com/spreadsheets/d/1Hw8ZAjvRUvGvRbZodN-kZeECD329KIM_jAcTR-8SpHo/edit"
   )
 
-
 def cargar_desde_nube(nombre_pestana):
   try:
     hoja = conectar_sheets().worksheet(nombre_pestana)
-    return hoja.get_all_records()
+    registros = hoja.get_all_records()
+    for fila in registros:
+      for k, v in fila.items():
+        if isinstance(v, str) and (v.startswith("[") or v.startswith("{")):
+          try:
+            fila[k] = json.loads(v)
+          except Exception:
+            pass
+    return registros
   except Exception as e:
     st.error(f"Error al leer {nombre_pestana}: {e}")
     return []
@@ -53,25 +60,7 @@ def guardar_en_nube(nombre_pestana, lista_datos):
     hoja = conectar_sheets().worksheet(nombre_pestana)
     hoja.clear()
     if lista_datos:
-      encabezados = list(lista_datos[0].keys())
-      filas = [encabezados] + [
-          [
-              json.dumps(v, ensure_ascii=False)
-              if isinstance(v, (dict, list))
-              else v
-              for v in item.values()
-          ]
-          for item in lista_datos
-      ]
-      hoja.update(filas)
-  except Exception as e:
-    st.error(f"Error al guardar en {nombre_pestana}: {e}")
-def guardar_en_nube(nombre_pestana, lista_datos):
-  try:
-    hoja = conectar_sheets().worksheet(nombre_pestana)
-    hoja.clear()
-    if lista_datos:
-      encabezados = list(lista_datos[0].keys())
+    encabezados = list(lista_datos[0].keys())
       filas = [encabezados] + [
           [
               json.dumps(v, ensure_ascii=False)
