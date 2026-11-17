@@ -1,0 +1,51 @@
+[
+  {
+    "nombre_producto": "Torta de Chocolate Clásica (Base 2kg)",
+    "ingredientes_necesarios": [
+      {
+        "nombre": "Harina 0000",
+        "cantidad": 0.4
+      },
+      {
+        "nombre": "Azucar 1kl",
+        "cantidad": 1.0
+      },
+      {
+        "nombre": "Aceite 1.5l",
+        "cantidad": 0.35
+      },
+      {
+        "nombre": "Huevos x30",
+        "cantidad": 11
+      },
+      {
+        "nombre": "Dulce de Leche 4kl",
+        "cantidad": 0.35
+      },
+      {
+        "nombre": "Ganache de Chocolate 500gr",
+        "cantidad": 0.35
+      },
+      {
+        "nombre": "Leche liquida",
+        "cantidad": 0.35
+      },
+      {
+        "nombre": "Mantequilla 5kl",
+        "cantidad": 0.3
+      },
+      {
+        "nombre": "Caja de torta",
+        "cantidad": 1
+      },
+      {
+        "nombre": "bandeja",
+        "cantidad": 1
+      },
+      {
+        "nombre": "Cacao 180gr",
+        "cantidad": 0.09
+      }
+    ]
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "nombre": "Harina 0000",
+    "costo_unitario": 1200
+  },
+  {
+    "nombre": "Azucar 1kl",
+    "costo_unitario": 1800
+  },
+  {
+    "nombre": "Aceite 1.5l",
+    "costo_unitario": 6500
+  },
+  {
+    "nombre": "Huevos x30",
+    "costo_unitario": 200
+  },
+  {
+    "nombre": "Leche liquida",
+    "costo_unitario": 2200
+  },
+  {
+    "nombre": "Mantequilla 5kl",
+    "costo_unitario": 30000
+  },
+  {
+    "nombre": "Dulce de Leche 4kl",
+    "costo_unitario": 20000
+  },
+  {
+    "nombre": "Ganache de Chocolate 500gr",
+    "costo_unitario": 5500
+  },
+  {
+    "nombre": "Caja de torta",
+    "costo_unitario": 2200
+  },
+  {
+    "nombre": "Relleno",
+    "costo_unitario": 2200
+  },
+  {
+    "nombre": "Bandeja",
+    "costo_unitario": 3500
+  },
+  {
+    "nombre": "Cacao 180gr",
+    "costo_unitario": 4800
+  },
+  {
+    "nombre": "Piñas en rodajas",
+    "costo_unitario": 12000
+  },
+  {
+    "nombre": "Chantilly",
+    "costo_unitario": 12000
+  },
+  {
+    "nombre": "Duraznos en almibar",
+    "costo_unitario": 6000
+  },
+  {
+    "nombre": "Frutas",
+    "costo_unitario": 6000
+  }
+]
