@@ -48,7 +48,24 @@ def cargar_desde_nube(nombre_pestana):
     st.error(f"Error al leer {nombre_pestana}: {e}")
     return []
 
-
+def guardar_en_nube(nombre_pestana, lista_datos):
+  try:
+    hoja = conectar_sheets().worksheet(nombre_pestana)
+    hoja.clear()
+    if lista_datos:
+      encabezados = list(lista_datos[0].keys())
+      filas = [encabezados] + [
+          [
+              json.dumps(v, ensure_ascii=False)
+              if isinstance(v, (dict, list))
+              else v
+              for v in item.values()
+          ]
+          for item in lista_datos
+      ]
+      hoja.update(filas)
+  except Exception as e:
+    st.error(f"Error al guardar en {nombre_pestana}: {e}")
 def guardar_en_nube(nombre_pestana, lista_datos):
   try:
     hoja = conectar_sheets().worksheet(nombre_pestana)
