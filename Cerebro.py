@@ -19,6 +19,54 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
+import gspread
+from google.oauth2.service_account import Credentials
+
+# --- CONEXIÓN A GOOGLE SHEETS ---
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+
+@st.cache_resource
+def conectar_sheets():
+  credenciales = Credentials.from_service_account_info(
+      st.secrets["gcp_service_account"], scopes=SCOPES
+  )
+  cliente = gspread.authorize(credenciales)
+  return cliente.open_by_url(
+      "https://docs.google.com/spreadsheets/d/1Hw8ZAjvRUvGvRbZodN-kZeECD329KIM_jAcTR-8SpHo/edit"
+  )
+
+
+def cargar_desde_nube(nombre_pestana):
+  try:
+    hoja = conectar_sheets().worksheet(nombre_pestana)
+    return hoja.get_all_records()
+  except Exception as e:
+    st.error(f"Error al leer {nombre_pestana}: {e}")
+    return []
+
+
+def guardar_en_nube(nombre_pestana, lista_datos):
+  try:
+    hoja = conectar_sheets().worksheet(nombre_pestana)
+    hoja.clear()
+    if lista_datos:
+      encabezados = list(lista_datos[0].keys())
+      filas = [encabezados] + [
+          [
+              json.dumps(v, ensure_ascii=False)
+              if isinstance(v, (dict, list))
+              else v
+              for v in item.values()
+          ]
+          for item in lista_datos
+      ]
+      hoja.update(filas)
+  except Exception as e:
+    st.error(f"Error al guardar en {nombre_pestana}: {e}")
 # Configuración de la página web para celular/PC
 st.set_page_config(page_title="Dulcemente Nicolle - Costos & Pedidos", page_icon="🧁", layout="centered")
 
