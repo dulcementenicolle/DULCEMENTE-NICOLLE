@@ -370,7 +370,7 @@ with col_logo:
 
 with col_texto:
     st.markdown("<h2 style='margin-bottom: 0px;'>Dulcemente Nicolle</h2>", unsafe_allow_html=True)
-    st.write("AGENDA DE PEDIDOS-CONTROL DE COSTOS-RECETAS-GALERIA DE FOTOS")
+    st.write("AGENDA DE PEDIDOS- CONTROL DE COSTOS- RECETAS")
 
 st.markdown("---")
 
