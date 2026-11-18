@@ -179,6 +179,17 @@ def guardar_recetas(recetas):
   guardar_en_nube("recetas", recetas)
 
 
+def cargar_gastos():
+  datos = cargar_desde_nube("gastos")
+  if datos:
+    return datos
+  return []
+
+
+def guardar_gastos(gastos):
+  guardar_en_nube("gastos", gastos)
+
+
 def cargar_catalogo():
   if os.path.exists(ARCHIVO_CATALOGO):
     try:
@@ -426,6 +437,7 @@ menu = st.radio(
         "Recetas Base",
         "Catálogo de Fotos",
         "Editar Precios / Insumos",
+        "Gastos & Ganancias",
         "Historial de Pedidos"
     ]
 )
@@ -543,6 +555,8 @@ if menu == "Nuevo Pedido (WhatsApp)":
             "nombre_cliente": calc['nombre_cliente'],
             "telefono": calc['telefono'],
             "fecha_entrega": f"{fecha_entrega.strftime('%d/%m/%Y')} {hora_entrega.strftime('%H:%M')}",
+            "receta": det.get('receta_utilizada'),
+            "precio_final": precio_total_final,
             "detalle": {
                 "resumen": f"{det.get('resumen')} | Extras: {desc_adicional} (${precio_adicional}) | Delivery: ${costo_delivery}" if desc_adicional else f"{det.get('resumen')} | Delivery: ${costo_delivery}",
                 "receta_utilizada": det.get('receta_utilizada'),
@@ -926,8 +940,47 @@ elif menu == "Editar Precios / Insumos":
             st.success("¡Base de datos de precios actualizada correctamente!")
             st.rerun()
 
+elif menu == "Gastos & Ganancias":
+    st.subheader("💰 Control de Gastos y Ganancias")
+
+    with st.form("form_nuevo_gasto"):
+        st.write("Registrar nuevo gasto operativo (servicios, empaques, transporte, etc.)")
+        desc_gasto = st.text_input("Descripción del gasto", placeholder="Ej: Luz, Gas, Delivery")
+        monto_gasto = st.number_input("Monto ($)", min_value=0.0, step=100.0)
+        fecha_gasto = st.date_input("Fecha del gasto", value=datetime.date.today())
+
+        submitted_gasto = st.form_submit_button("Guardar Gasto")
+        if submitted_gasto:
+            gastos_actuales = cargar_gastos()
+            nuevo_gasto = {
+                "descripcion": desc_gasto,
+                "monto": monto_gasto,
+                "fecha": str(fecha_gasto),
+            }
+            gastos_actuales.append(nuevo_gasto)
+            guardar_gastos(gastos_actuales)
+            st.success("¡Gasto registrado con éxito en la nube!")
+            st.rerun()
+
+    st.markdown("### 📊 Resumen Financiero")
+    pedidos_reg = consultar_historial()
+    gastos_reg = cargar_gastos()
+
+    total_ingresos = sum(float(p.get("precio_final", 0) or 0) for p in pedidos_reg)
+    total_gastos = sum(float(g.get("monto", 0) or 0) for g in gastos_reg)
+    ganancia_neta = total_ingresos - total_gastos
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Ingresos Totales (Pedidos)", f"${total_ingresos:,.2f}")
+    col2.metric("Gastos Operativos", f"${total_gastos:,.2f}")
+    col3.metric("Balance / Ganancia Neta", f"${ganancia_neta:,.2f}")
+
+    if gastos_reg:
+        st.markdown("#### Historial de Gastos")
+        st.dataframe(gastos_reg, use_container_width=True)
+
 elif menu == "Historial de Pedidos":
-    st.subheader("📂 Registro Histórico de Ventas")
+    st.subheader("📂 Registro Histórico de Ventas y Desglose de Insumos")
     historial = consultar_historial()
 
     if not historial:
@@ -947,6 +1000,33 @@ elif menu == "Historial de Pedidos":
                     st.write(f"**Receta:** {det.get('receta_utilizada')}")
                 st.write(f"**Precio Final Total:** ${det.get('precio_sugerido')}")
 
+                st.markdown("---")
+                st.markdown("### 🛒 Insumos calculados para este pedido:")
+                
+                recetas_disponibles = cargar_recetas()
+                receta_nombre = pedido.get("receta", "")
+                if not receta_nombre and "receta_utilizada" in det:
+                    receta_nombre = det.get("receta_utilizada")
+
+                receta_encontrada = next(
+                    (r for r in recetas_disponibles if r.get("nombre_producto") == receta_nombre),
+                    None,
+                )
+
+                if receta_encontrada and "ingredientes_necesarios" in receta_encontrada:
+                    ingredientes = receta_encontrada["ingredientes_necesarios"]
+                    if isinstance(ingredientes, str):
+                        try:
+                            ingredientes = json.loads(ingredientes)
+                        except:
+                            ingredientes = []
+
+                    for ing in ingredientes:
+                        st.text(f"• {ing.get('nombre', 'Insumo')}: {ing.get('cantidad', 0)} unidades/kg")
+                else:
+                    st.info("No se encontró el desglose automático de ingredientes para esta receta.")
+
+                st.markdown("---")
                 col_btn1, col_btn2 = st.columns([1, 1])
                 with col_btn1:
                     pdf_hist = generar_pdf_presupuesto(
